@@ -2,32 +2,30 @@
 
 IDEA PRINCIPAL DEL TFG: 
 		
-		REFINAR LOS DATOS QUE HAY DISPONIBLES EN EL KNOWLEDGE GRAPH DE THEYBUYFORYOU PARA CENTRARSE EN LAS LICITACIONES EN ESPAÑA PARA CREAR UN SUBCONJUNTO DEL KNOWLEDGE GRAPH
++ REFINAR LOS DATOS QUE HAY DISPONIBLES EN EL KNOWLEDGE GRAPH DE THEYBUYFORYOU PARA CENTRARSE EN LAS LICITACIONES EN ESPAÑA PARA CREAR UN SUBCONJUNTO DEL KNOWLEDGE GRAPH
 
-		COMPROBAR INICIALMENTE EL GRADO DE COBERTURA QUE TIENE CON RESPECTO A LOS DATOS QUE HAY EN LA PLATAFORMA DE CONTRATACIÓN DEL ESTADO
++ COMPROBAR INICIALMENTE EL GRADO DE COBERTURA QUE TIENE CON RESPECTO A LOS DATOS QUE HAY EN LA PLATAFORMA DE CONTRATACIÓN DEL ESTADO
 
-		REVISAR CÓMO ARREGLAR ERRORES
++ REVISAR CÓMO ARREGLAR ERRORES
     
 
 Puntos de análisis iniciales
 
 - Extraer datos de la plataforma de contratación del Estado: https://contrataciondelestado.es/wps/portal/plataforma 
-		Ubicación de los datos públicos: 		    	https://www.hacienda.gob.es/es-ES/GobiernoAbierto/Datos%20Abiertos/Paginas/licitaciones_plataforma_contratacion.aspx
-
-		Código empleado para extraer los datos: 	https://github.com/ocorcho/Extractor_Xml2Tables
-													                    https://github.com/pproc/pproc-pcsp
+		Ubicación de los datos públicos: https://www.hacienda.gob.es/es-ES/GobiernoAbierto/Datos%20Abiertos/Paginas/licitaciones_plataforma_contratacion.aspx
+		Código empleado para extraer los datos: https://github.com/ocorcho/Extractor_Xml2Tables
+							https://github.com/pproc/pproc-pcsp
 
 - Comparación y análisis de datos de ontología PPROC (estándar de modelo para tratamiento de datos de contratación en España)
-		Descripción de ontologías:					      http://pproc.unizar.es/def/sector-publico/pproc.html (se ve mal debido a código CSS)
-													                    http://www.semantic-web-journal.net/system/files/swj1142.pdf		
-													                    https://github.com/pproc	
+		Descripción de ontologías: http://pproc.unizar.es/def/sector-publico/pproc.html (se ve mal debido a código CSS)
+					   http://www.semantic-web-journal.net/system/files/swj1142.pdf		
+					   https://github.com/pproc	
 
 - Análisis de ontologías y grafos de Proyecto TheyBuyForYou. Siguen la línea de la ontología OCDS (Open Contracting Data Standard): 
   https://standard.open-contracting.org/latest/en/
-		Descripción de ontología OCDS: 			    	https://github.com/TBFY/ocds-ontology/blob/master/model/ocds-extended.ttl
-
-		Descripción de grafo TheyBuyForYou: 	  	https://zenodo.org/record/4498267#.YDfGG2pKjok
-													                    https://github.com/TBFY/
+		Descripción de ontología OCDS: https://github.com/TBFY/ocds-ontology/blob/master/model/ocds-extended.ttl
+		Descripción de grafo TheyBuyForYou: https://zenodo.org/record/4498267#.YDfGG2pKjok
+						    https://github.com/TBFY/
 
 Puntos de desarrollo
 
