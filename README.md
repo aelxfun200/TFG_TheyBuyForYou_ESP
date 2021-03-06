@@ -29,7 +29,7 @@ Puntos de análisis iniciales
 
 Puntos de desarrollo
 
-- Software actualizado para obtener los datos de desarrollo de la Plataforma de Contratación del Estado (cada día o cada x tiempo)
+- Software actualizado para obtener los datos de los XML de la Plataforma de Contratación del Estado (que se publican cada día o cada x tiempo)
 
 - Analizar las relaciones entre el modelo de CODICE(Modelo que se utiliza en España para trabajar con la Plataforma de Contratación del Estado) y OCDS, con el fin de sacar un listado con lo que se puede respresentar y lo que no.
 
