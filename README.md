@@ -13,6 +13,7 @@ Puntos de análisis iniciales
 
 - Extraer datos de la plataforma de contratación del Estado: https://contrataciondelestado.es/wps/portal/plataforma 
 		Ubicación de los datos públicos: https://www.hacienda.gob.es/es-ES/GobiernoAbierto/Datos%20Abiertos/Paginas/licitaciones_plataforma_contratacion.aspx
+		
 		Código empleado para extraer los datos: https://github.com/ocorcho/Extractor_Xml2Tables
 							https://github.com/pproc/pproc-pcsp
 
