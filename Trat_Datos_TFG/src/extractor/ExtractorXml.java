@@ -1,5 +1,9 @@
 package extractor;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
@@ -55,7 +59,9 @@ public class ExtractorXml {
     		if(contiene == true) {   			
     			columnas = columnas.replace(",  entry,", "\n");
     		}
-    		System.out.println("Las columnas son:" + columnas);
+    		//System.out.println("Las columnas son:" + columnas);
+    		
+    		crearFichero(columnas);
 
 	
     	} catch (Exception e) {
@@ -112,7 +118,25 @@ public class ExtractorXml {
     }
     
     
-    public void crearFichero() {
+    public void crearFichero(String texto) {
+    	
+    	try {
+    		String ruta_fichero = "C:/Users/alexf/Documents/Grado en INGENIERÍA INFORMÁTICA/TFG/atributos.txt";
+    		File fichero = new File(ruta_fichero);
+    		if(!fichero.exists()) {
+    			fichero.createNewFile();
+    		}
+    		
+    		FileWriter escribir = new FileWriter(fichero);
+    		BufferedWriter bw = new BufferedWriter(escribir);
+    		bw.write(texto);
+    		bw.close();
+    		
+    		
+    	} catch (Exception e) {
+			// TODO: handle exception
+    		e.printStackTrace();
+		}
     	
     }
     
