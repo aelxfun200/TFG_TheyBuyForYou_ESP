@@ -11,6 +11,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class ExtractorXml {
+	
+	private String atributos;
 	    
     public void abrirDoc(String fichero) {
 
@@ -22,9 +24,10 @@ public class ExtractorXml {
     		Element raiz = doc.getDocumentElement();
     		System.out.println("La raiz del documento es:" + raiz.getNodeName());
     		String columnas = "";
-    		String entry = " entry,";
+    		String entry = "entry";
+    		String previoColumnas = "";
     		boolean contiene;
-	
+    		
     		Node nodoResponsable = raiz.getFirstChild().getNextSibling();
     		
     		if(nodoResponsable.getNodeType() == Node.ELEMENT_NODE) {
@@ -34,13 +37,24 @@ public class ExtractorXml {
     			while(nodoResponsable.getNextSibling() != null) {
     			
 					Node hijos = nodoResponsable.getFirstChild();
+					
 					if(hijos != null) {
 						while(hijos.getNextSibling() != null) {
-							//System.out.println("-");
-							//if (hijos.getNodeType() == Node.ELEMENT_NODE) {
-							//	System.out.println(hijos.getNodeName());
-							//}
-							columnas = columnas + textoXml(hijos);
+							
+							previoColumnas = textoXml(hijos);
+							if(previoColumnas !=null) {
+								System.out.println("previoColumnas:" + previoColumnas);
+								String[] atributo = previoColumnas.split(",");
+	
+								for(int i = 0; i < atributo.length; i++) {
+	
+									if(!columnas.contains(atributo[i])) {
+										columnas = columnas + atributo[i] + ",";	
+									}
+								} 
+							}
+
+							//columnas = columnas + textoXml(hijos,entrada);
 							hijos = hijos.getNextSibling();
 						}
 					}
@@ -55,11 +69,12 @@ public class ExtractorXml {
     		}
 
     		contiene = columnas.contains(entry);
-    		columnas = columnas.replace("      ", "");
+    		columnas = columnas.replace("null", "");
+    		columnas = columnas.replace(",  ", "");
     		if(contiene == true) {   			
-    			columnas = columnas.replace(",  entry,", "\n");
+    			columnas = columnas.replace(entry, "\n");
     		}
-    		//System.out.println("Las columnas son:" + columnas);
+    		System.out.println("Las columnas son: " + columnas);
     		
     		crearFichero(columnas);
 
@@ -73,42 +88,34 @@ public class ExtractorXml {
     
     
     public String textoXml (Node nodo) {
-    	
-    	String texto = " ";
-    	
-    	Node m = nodo.getFirstChild();
-    	
+    	   	
+    	Node m = nodo.getFirstChild(); 
 
     	while(m != null) {
     		if (m.getNodeType() == Node.ELEMENT_NODE) {
-    			//System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
     			System.out.println("- " + m.getNodeName());
-    			texto = texto + m.getNodeName() + ", " ;
+    			setAtributos(m.getNodeName());
+    		
     		}
     		
-    		if(m.getFirstChild() != null) {
-    			System.out.println(m.getTextContent());
-    			
-    			textoXml(m);
-    			
+    		if(m.getFirstChild() != null) {	
+    			textoXml(m);	
     		}
-    		
-    		//texto = texto.concat("NodeName: "+ m.getNodeName() + "\n");
-    			
+	
     		m = m.getNextSibling();
     	}
-    	return texto;
-    
+    	
+    	return getAtributos();
     }     	
     
     
     public String textoXmlSinHijos (Node nodo) {
     	
-    	String texto = " ";
+    	String texto = "";
 		//System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
 		if (nodo.getNodeType() == Node.ELEMENT_NODE) {
 			System.out.println("- "+ nodo.getNodeName());
-			texto = texto + nodo.getNodeName() + ",";
+			texto = texto + nodo.getNodeName() + ", ";
 		}
 		System.out.println(nodo.getTextContent());
 		//texto = "NodeName: "+ nodo.getNodeName() + "\n";
@@ -139,5 +146,14 @@ public class ExtractorXml {
 		}
     	
     }
+    
+    public void setAtributos (String att) {
+    	this.atributos = atributos + att + ", ";
+    }
+    
+    public String getAtributos () {
+    	return atributos;
+    }
+
     
 }
