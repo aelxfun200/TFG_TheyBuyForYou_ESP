@@ -13,6 +13,7 @@ import org.w3c.dom.Node;
 public class ExtractorXml {
 	
 	private String atributos;
+	private String datos;
 	    
     public void abrirDoc(String fichero) {
 
@@ -26,6 +27,7 @@ public class ExtractorXml {
     		String columnas = "";
     		String entry = "entry";
     		String previoColumnas = "";
+    		String datosColumnas = "";
     		boolean contiene;
     		
     		Node nodoResponsable = raiz.getFirstChild().getNextSibling();
@@ -51,10 +53,10 @@ public class ExtractorXml {
 									if(!columnas.contains(atributo[i])) {
 										columnas = columnas + atributo[i] + ",";	
 									}
-								} 
+								}
 							}
-
-							//columnas = columnas + textoXml(hijos,entrada);
+												
+							atributos = null;   						//Vaciado del atributo para no ralentizar el proceso
 							hijos = hijos.getNextSibling();
 						}
 					}
@@ -62,22 +64,25 @@ public class ExtractorXml {
 	    			if(nodoResponsable.getNodeType() == Node.ELEMENT_NODE) {
 	    				System.out.println("El nodo accedido NO tiene hijos");
 	    				columnas = columnas + textoXmlSinHijos(nodoResponsable);
+	    				
 	    			}
 	    			nodoResponsable = nodoResponsable.getNextSibling();
     			}
     			
     		}
-
-    		contiene = columnas.contains(entry);
+	
     		columnas = columnas.replace("null", "");
-    		columnas = columnas.replace(",  ", "");
+    		contiene = columnas.contains(entry);
     		if(contiene == true) {   			
-    			columnas = columnas.replace(entry, "\n");
+    			columnas = columnas.replace(entry, " ");
     		}
+    		
+    		columnas = columnas.replace(",  ", "");
+    		columnas = columnas.replace(", , ", "");
     		System.out.println("Las columnas son: " + columnas);
+    		//columnas = columnas + datosColumnas;
     		
     		crearFichero(columnas);
-
 	
     	} catch (Exception e) {
 			// TODO: handle exception
@@ -93,18 +98,20 @@ public class ExtractorXml {
 
     	while(m != null) {
     		if (m.getNodeType() == Node.ELEMENT_NODE) {
-    			System.out.println("- " + m.getNodeName());
-    			setAtributos(m.getNodeName());
-    		
+    			System.out.println("- " + replaceString(m.getNodeName()));
+    			setAtributos(replaceString(m.getNodeName()));
+    			
     		}
     		
     		if(m.getFirstChild() != null) {	
     			textoXml(m);	
+    		} else if (!m.getTextContent().isBlank()){
+    			System.out.println("El texto del nodo sin hijos es:" + m.getTextContent());
     		}
-	
+    	   //	System.out.println("EL TEXTO ES:" + m.getTextContent());
     		m = m.getNextSibling();
     	}
-    	
+ 
     	return getAtributos();
     }     	
     
@@ -112,14 +119,13 @@ public class ExtractorXml {
     public String textoXmlSinHijos (Node nodo) {
     	
     	String texto = "";
-		//System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+    	
 		if (nodo.getNodeType() == Node.ELEMENT_NODE) {
 			System.out.println("- "+ nodo.getNodeName());
 			texto = texto + nodo.getNodeName() + ", ";
+			//System.out.println("EL TEXTO ES:" + nodo.getTextContent());
+			
 		}
-		System.out.println(nodo.getTextContent());
-		//texto = "NodeName: "+ nodo.getNodeName() + "\n";
-    	//System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
     	return texto;
     	
     }
@@ -128,7 +134,7 @@ public class ExtractorXml {
     public void crearFichero(String texto) {
     	
     	try {
-    		String ruta_fichero = "C:/Users/alexf/Documents/Grado en INGENIERÍA INFORMÁTICA/TFG/atributos.txt";
+    		String ruta_fichero = "C:/Users/alexf/Documents/Grado en INGENIERÍA INFORMÁTICA/TFG/atributos.csv";
     		File fichero = new File(ruta_fichero);
     		if(!fichero.exists()) {
     			fichero.createNewFile();
@@ -154,6 +160,39 @@ public class ExtractorXml {
     public String getAtributos () {
     	return atributos;
     }
-
     
+    public void setDatos (String dat) {
+    	this.datos = datos + dat + ", ";
+    }
+    
+    public String getDatos () {
+    	return datos;
+    }
+
+    public String replaceString (String texto) {
+    	
+    	if(texto.contains("cac:")) {
+    		texto = texto.replace("cac:", "");
+    	}
+
+    	if(texto.contains("cac-place-ext:")) {
+    		texto = texto.replace("cac-place-ext:", "");
+    	}
+    	if(texto.contains("cbc:")) {
+    		texto = texto.replace("cbc:", "");
+    	}
+    	if(texto.contains("cbc-place-ext:")) {
+    		texto = texto.replace("cbc-place-ext:", "");
+    	}
+
+    	return texto;
+    }
+    
+    public String tratarDatos (String texto) {  	
+    	texto = texto.replace("\n", ",");
+    	texto = texto.replace("       ", ",");
+    	texto = texto.replace("null,,", "");
+    	texto = texto.replace(",,", ","); 
+    	return texto;
+    }
 }
