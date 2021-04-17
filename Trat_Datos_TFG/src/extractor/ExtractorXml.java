@@ -56,7 +56,7 @@ public class ExtractorXml {
 		    						columnas = columnas + replaceString(hijos.getNodeName()) + ", ";
 								}
 								
-								previoColumnas = textoXml(hijos);
+								previoColumnas = textoXml(hijos,0);
 								if(previoColumnas !=null) {
 									
 									String[] atributo = previoColumnas.split(",");
@@ -68,6 +68,10 @@ public class ExtractorXml {
 											columnas = columnas + atributo[i] + ",";	
 											
 										//}
+										
+										/*if(contiene(atributo[i]) == true) {
+											atributo
+										}*/
 									}
 								}
 								if(datos != null) {
@@ -106,19 +110,41 @@ public class ExtractorXml {
     }
     
     
-    public String textoXml (Node nodo) {
+    public String textoXml (Node nodo, int contador) {
     	   	
     	Node m = nodo.getFirstChild(); 
+    	//int contador = 0;
 
     	while(m != null) {
 
     		if (m.getNodeType() == Node.ELEMENT_NODE ) {
     			System.out.println("- " + replaceString(m.getNodeName()));
-    			setAtributos(replaceString(m.getNodeName()));	
+    			setAtributos(replaceString(m.getNodeName()));
+    			
+    			if(contiene(replaceString(m.getNodeName())) == true) { //
+    				if (m.getParentNode().getNodeName() != "entry") {  
+    					System.out.println("==" + replaceString(m.getNodeName()));
+    					Node nodoPadre = m.getParentNode();
+    					int cont = contador;
+    					while(nodoPadre.getParentNode() != null && nodoPadre.getParentNode().getNodeName()!= "entry") {
+    						nodoPadre = nodoPadre.getParentNode();
+    						System.out.println("El primer contador es: " + contador);
+    						contador ++;
+    					}
+    					
+    					//if(contador > 0) {
+        					if (crearFichero(m.getNodeName(), replaceString(nodoPadre.getNodeName()), ".txt") == false)  {
+        						contador --;
+        					}
+        					
+    					//}
+    				}
+    			}
     		}
     		
     		if(m.getFirstChild() != null) {	
-    			textoXml(m);	
+    			System.out.println("Se invoca a la función textoXml con el valor del contador: " + contador);
+    			textoXml(m, contador);	
     		} else if (!m.getTextContent().isBlank()){
     			System.out.println("   " + m.getTextContent());
     			setDatos(m.getTextContent());
@@ -144,13 +170,14 @@ public class ExtractorXml {
     }
     
     
-    public void crearFichero(String texto, String nombre, String extension) {
-    	
+    public boolean crearFichero(String texto, String nombre, String extension) {
+    	boolean dev = false;
     	try {
     		String ruta_fichero = "C:/Users/alexf/Documents/Grado en INGENIERÍA INFORMÁTICA/TFG/"+ nombre + extension;
     		File fichero = new File(ruta_fichero);
     		if(!fichero.exists()) {
     			fichero.createNewFile();
+    			dev = true;
     		}
     		
     		FileWriter escribir = new FileWriter(fichero);
@@ -163,6 +190,7 @@ public class ExtractorXml {
 			// TODO: handle exception
     		e.printStackTrace();
 		}
+    	return dev;
     	
     }
     
@@ -223,5 +251,15 @@ public class ExtractorXml {
     
     public String getEtiqueta() {
     	return etiqueta;
+    }
+    
+    
+    public boolean contiene(String texto) {
+    	boolean dev = false;
+    	if(texto.contains("ID")) {
+    		dev = true;
+    	}
+    	
+    	return dev;
     }
 }
