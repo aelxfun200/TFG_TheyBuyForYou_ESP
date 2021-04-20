@@ -13,6 +13,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+
 public class ExtractorXml {
 	
 	private String atributos;
@@ -21,6 +22,7 @@ public class ExtractorXml {
 	private String etiqueta;
 	HashMap<String, String> data = new HashMap<String, String>();
 	ArrayList<HashMap<String, String>> entradas = new ArrayList<HashMap<String, String>>();
+	String identificador = "";
 	    
     public void abrirDoc(String fichero) {
 
@@ -37,6 +39,8 @@ public class ExtractorXml {
     		String datosColumnas = "";
     		boolean contiene;
     		
+    		
+    		
     		NodeList nList = doc.getElementsByTagName("entry");
     				//raiz.getFirstChild().getNextSibling();
     		
@@ -51,12 +55,18 @@ public class ExtractorXml {
 						
 						if(hijos != null && hijos.getNodeType() == Node.ELEMENT_NODE) {
 							while(hijos.getNextSibling() != null) {
+								int cont = 0;
 								if(hijos.getNodeType() == Node.ELEMENT_NODE) {
 									System.out.println( "+ " + hijos.getNodeName());
-		    						columnas = columnas + replaceString(hijos.getNodeName()) + ", ";
+									columnas = columnas + replaceString(hijos.getNodeName()) + ", ";
+									
+									if(hijos.getNodeName() == "id") {
+										identificador = hijos.getTextContent().substring(74,81);
+										System.out.println(identificador);
+									}
 								}
 								
-								previoColumnas = textoXml(hijos,0);
+								previoColumnas = textoXml(hijos,cont);
 								if(previoColumnas !=null) {
 									
 									String[] atributo = previoColumnas.split(",");
@@ -122,22 +132,50 @@ public class ExtractorXml {
     			setAtributos(replaceString(m.getNodeName()));
     			
     			if(contiene(replaceString(m.getNodeName())) == true) { //
-    				if (m.getParentNode().getNodeName() != "entry") {  
+    				if (m.getParentNode().getNodeName() != "entry" && m.getParentNode().getNodeName() != "feed") {  
     					System.out.println("==" + replaceString(m.getNodeName()));
     					Node nodoPadre = m.getParentNode();
-    					int cont = contador;
-    					while(nodoPadre.getParentNode() != null && nodoPadre.getParentNode().getNodeName()!= "entry") {
-    						nodoPadre = nodoPadre.getParentNode();
+    					int cont = 0;
+    					do {
+    						if(nodoPadre.getParentNode().getNodeName() != "cac-place-ext:ContractFolderStatus") {
+    							nodoPadre = nodoPadre.getParentNode();
+    						}
+    						
+    						System.out.println();
     						System.out.println("El primer contador es: " + contador);
     						contador ++;
+    						System.out.println("El valor del contador con el que se sale del bucle es: " + contador);
+    						System.out.println("el valor del padre es: " + nodoPadre.getNodeName());
+    						System.out.println("el valor del hijo es: " + m.getNodeName());
+    						System.out.println("el valor del PADRE es: " + m.getParentNode().getNodeName());
+    					}while(nodoPadre.getParentNode() != null && nodoPadre.getNodeName()!= "entry" && contador == cont); {
+    						
     					}
     					
-    					//if(contador > 0) {
-        					if (crearFichero(m.getNodeName(), replaceString(nodoPadre.getNodeName()), ".txt") == false)  {
-        						contador --;
-        					}
+    					if(nodoPadre.getParentNode().getNodeName()!= "feed") {
+    						System.out.println("SE INTENTA CREAR EL FICHERO " + replaceString(nodoPadre.getNodeName()));
+    						
+    						if(existeFichero(replaceString(nodoPadre.getNodeName())) == true) {
+    							cont = contador --;
+    						} else {
+	    						crearFichero(m.getNodeName() + " " + m.getTextContent(), replaceString(nodoPadre.getNodeName()), ".txt");
+		    					System.out.println("Se entra en el bucle +++++++++++++++++++++++++++++++++++++++++++++++");
+	    						
+	    					}
+	    				System.out.println("Se ha insertado en el fichero: " + replaceString(nodoPadre.getNodeName()) + " el dato: " + m.getNodeName() + " " + m.getTextContent() + "------------------------------------");
+    					} else {
+    						if(existeFichero("ContractFolderStatus") == true) {
+    							cont = contador --;
+    						} else {
+    						crearFichero(m.getNodeName() + " " + m.getTextContent(), "ContractFolderStatus" , ".txt");
+	    					System.out.println("Se entra en el bucle +++++++++++++++++++++++++++++++++++++++++++++++");
+    						
+    					}
+    					
+    					System.out.println("Se ha insertado en el fichero: " + "ContractFolderStatus" + " el dato: " + m.getNodeName() + " " + m.getTextContent() + "------------------------------------");
         					
-    					//}
+    					}
+    					
     				}
     			}
     		}
@@ -192,6 +230,16 @@ public class ExtractorXml {
 		}
     	return dev;
     	
+    }
+    
+    public boolean existeFichero(String texto) {
+    	boolean dev = false;
+    	String ruta_fichero = "C:/Users/alexf/Documents/Grado en INGENIERÍA INFORMÁTICA/TFG/"+ texto + ".txt";
+		File fichero = new File(ruta_fichero);
+		if(fichero.exists()) {
+			dev = true;
+		}
+    	return dev;
     }
     
     public void setAtributos (String att) {
