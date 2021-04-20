@@ -3,6 +3,7 @@ package extractor;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -156,6 +157,7 @@ public class ExtractorXml {
     						System.out.println("SE INTENTA CREAR EL FICHERO " + replaceString(nodoPadre.getNodeName()));
     						
     						if(existeFichero(replaceString(nodoPadre.getNodeName())) == true) {
+    							crearFichero(m.getNodeName() + " " + m.getTextContent(), replaceString(nodoPadre.getNodeName()), ".txt");
     							cont = contador --;
     						} else {
 	    						crearFichero(m.getNodeName() + " " + m.getTextContent(), replaceString(nodoPadre.getNodeName()), ".txt");
@@ -165,6 +167,7 @@ public class ExtractorXml {
 	    				System.out.println("Se ha insertado en el fichero: " + replaceString(nodoPadre.getNodeName()) + " el dato: " + m.getNodeName() + " " + m.getTextContent() + "------------------------------------");
     					} else {
     						if(existeFichero("ContractFolderStatus") == true) {
+    							crearFichero(m.getNodeName() + " " + m.getTextContent(), "ContractFolderStatus" , ".txt");
     							cont = contador --;
     						} else {
     						crearFichero(m.getNodeName() + " " + m.getTextContent(), "ContractFolderStatus" , ".txt");
@@ -213,13 +216,14 @@ public class ExtractorXml {
     	try {
     		String ruta_fichero = "C:/Users/alexf/Documents/Grado en INGENIERÍA INFORMÁTICA/TFG/"+ nombre + extension;
     		File fichero = new File(ruta_fichero);
+    		FileWriter escribir = new FileWriter(fichero, true);
+    		BufferedWriter bw = new BufferedWriter(escribir);
     		if(!fichero.exists()) {
     			fichero.createNewFile();
     			dev = true;
+    			
     		}
     		
-    		FileWriter escribir = new FileWriter(fichero);
-    		BufferedWriter bw = new BufferedWriter(escribir);
     		bw.write(texto);
     		bw.close();
     		
@@ -304,7 +308,7 @@ public class ExtractorXml {
     
     public boolean contiene(String texto) {
     	boolean dev = false;
-    	if(texto.contains("ID")) {
+    	if(texto.contains("ID") || texto.contains("Code")) {
     		dev = true;
     	}
     	
