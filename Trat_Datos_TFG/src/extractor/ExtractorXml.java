@@ -22,13 +22,14 @@ public class ExtractorXml {
 	private String entrada;
 	private String etiqueta;
 	private String name; 
-	
+	private String nameAnterior;
 	HashMap<String, String> data = new HashMap<String, String>();
 	ArrayList<HashMap<String, String>> entradas = new ArrayList<HashMap<String, String>>();
 	String identificador = "";
 	String fichero = "";
 	String cols = "";
 	String nm = "";
+	Node p = null;
 	NodeList nList = null;
 	int num = 0;
 
@@ -38,27 +39,14 @@ public class ExtractorXml {
     		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
     		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
     		Document doc = dBuilder.parse(fichero);
-    		doc.getDocumentElement().normalize();
-    		Element raiz = doc.getDocumentElement();
-    		//System.out.println("La raiz del documento es:" + raiz.getNodeName());
-    		String columnas = "";
-    		String entry = "entry";
-    		String previoColumnas = "";
-    		String datosColumnas = "";
-    		boolean contiene;
-    		
-    		
-    		
+    		doc.getDocumentElement().normalize();	
     		nList = doc.getElementsByTagName("entry");
-    				//raiz.getFirstChild().getNextSibling();
     		
     		for(int j = 0; j < nList.getLength(); j++) {
     			Node nodoResponsable = nList.item(j);
     			num = j;
     			
-	    		if(nodoResponsable.getNodeType() == Node.ELEMENT_NODE) {
-	    			
-	    			//while(nodoResponsable.getNextSibling() != null) {
+	    		if(nodoResponsable.getNodeType() == Node.ELEMENT_NODE) {	    			
 	    			
 						Node hijos = nodoResponsable.getFirstChild().getNextSibling();
 						
@@ -67,59 +55,20 @@ public class ExtractorXml {
 								int cont = 0;
 								if(hijos.getNodeType() == Node.ELEMENT_NODE) {
 									System.out.println( "+ " + hijos.getNodeName());
-									columnas = columnas + replaceString(hijos.getNodeName()) + ", ";
-									
+									setEtiqueta(replaceString(hijos.getNodeName()));
 									if(hijos.getNodeName() == "id") {
 										identificador = hijos.getTextContent().substring(75,81);
 										System.out.println(identificador);
 									}
 								}
 								
-								previoColumnas = textoXml(hijos,cont);
-								if(previoColumnas !=null) {
-									
-									String[] atributo = previoColumnas.split(",");
-		
-									for(int i = 0; i < atributo.length; i++) {
-		
-										//if(!columnas.contains(atributo[i])) {
-										if(!atributo[i].isBlank())
-											columnas = columnas + atributo[i] + ",";	
-											
-										//}
-										
-										/*if(contiene(atributo[i]) == true) {
-											atributo
-										}*/
-									}
-								}
-								if(datos != null) {
-									datosColumnas = datosColumnas + getDatos();
-								}
-								datos = "";					
-								atributos = "";   						//Vaciado del atributo para no ralentizar el proceso
+								textoXml(hijos,cont);
 								hijos = hijos.getNextSibling();
 							}
-						}
-		    			
-		    		
+						}			    		
 		    			nodoResponsable = nodoResponsable.getNextSibling();
 	    			}
-	    		
-	    		datosColumnas = datosColumnas + "\n";
     		}
-	
-    		columnas = columnas.replace("null", "");
-    		contiene = columnas.contains(entry);
-    		if(contiene == true) {
-    			datosColumnas = datosColumnas + "\n";
-    			columnas = columnas.replace(entry, " ");    			
-    		}
-    		
-    		System.out.println("Las columnas son: " + columnas);
-    		columnas = columnas + "\n" + datosColumnas;
-    		
-    		crearFichero(columnas, "prueba", ".txt");
 	
     	} catch (Exception e) {
 			// TODO: handle exception
@@ -132,9 +81,7 @@ public class ExtractorXml {
     public String textoXml (Node nodo, int contador) {
     	   	
     	Node m = nodo.getFirstChild(); 
-    	//int contador = 0;
     	Node nodoPadre = null;
-    	
 
     	while(m != null) {
 
@@ -162,6 +109,7 @@ public class ExtractorXml {
     						System.out.println("El valor del contador con el que se sale del bucle es: " + contador);
     						System.out.println("el valor del padre es: " + nodoPadre.getNodeName());
     						nm = replaceString(nodoPadre.getNodeName());
+    						p = nodoPadre;
     						System.out.println("el valor del hijo es: " + m.getNodeName());
     						System.out.println("el valor del PADRE es: " + m.getParentNode().getNodeName());
     					}while(nodoPadre.getParentNode() != null && nodoPadre.getNodeName()!= "entry" && contador == cont); {
@@ -172,34 +120,40 @@ public class ExtractorXml {
     						System.out.println("SE INTENTA CREAR EL FICHERO " + replaceString(nodoPadre.getNodeName()));
     						nm = replaceString(nodoPadre.getNodeName());
     						if(existeFichero(replaceString(nodoPadre.getNodeName())) == true) {
-    							crearFichero("", replaceString(nodoPadre.getNodeName()), ".txt");
-    							//setEntrada(m.getTextContent());
+    							crearFichero("", replaceString(nodoPadre.getNodeName()), ".csv");
     							cont = contador --;
     						} else {
-	    						crearFichero("", replaceString(nodoPadre.getNodeName()), ".txt");
+	    						crearFichero("", replaceString(nodoPadre.getNodeName()), ".csv");
 		    					System.out.println("Se entra en el bucle +++++++++++++++++++++++++++++++++++++++++++++++");
-		    					//setEntrada(m.getTextContent());
 		    					
 	    					}
+    						setNameAnterior(name);
     						name = replaceString(nodoPadre.getNodeName());
     						System.out.println("NOMBRE = " + name);
 	    				System.out.println("Se ha insertado en el fichero: " + replaceString(nodoPadre.getNodeName()) + " el dato: " + m.getNodeName() + " " + m.getTextContent() + "------------------------------------");
 
     					} else {
     						if(existeFichero("ContractFolderStatus") == true) {
-    							crearFichero("", "ContractFolderStatus" , ".txt");
+    							crearFichero("", "ContractFolderStatus" , ".csv");
     							cont = contador --;
     						} else {
-    						crearFichero("", "ContractFolderStatus" , ".txt");
-    						//setEntrada(m.getTextContent());
+    						crearFichero("", "ContractFolderStatus" , ".csv");
 	    					System.out.println("Se entra en el bucle +++++++++++++++++++++++++++++++++++++++++++++++");
-	    					
-    					}
-    					
+    						}	
     					System.out.println("Se ha insertado en el fichero: " + "ContractFolderStatus" + " el dato: " + m.getNodeName() + " " + m.getTextContent() + "------------------------------------");
+    					setNameAnterior(name);
     					name ="ContractFolderStatus";		
-    					}
+    					} 
     					
+						/*if(existeFichero("entry") == true) {
+							crearFichero("", "entry" , ".txt");
+							cont = contador --;
+						} else {
+						crearFichero("", "entry" , ".txt");
+    					System.out.println("Se entra en el bucle +++++++++++++++++++++++++++++++++++++++++++++++");
+						}	
+					System.out.println("Se ha insertado en el fichero: " + "entry" + " el dato: " + m.getNodeName() + " " + m.getTextContent() + "------------------------------------");
+					name ="entry";*/
     					
     				}
     			}
@@ -215,20 +169,18 @@ public class ExtractorXml {
     			
     		}
     		
-    		if(name!= null && !name.isBlank() ) {  //Pos = final
-    			Node n = m;
-    			/*if(n != null) {
-    				if(name )
-    			}*/
-    			if(num == 0) {
-					fichero = "id, " + getEtiqueta() + "\n" + identificador + ", " +getEntrada() + "\n";
+    		if(name!= null && !name.isBlank() ) {  //Pos = final   HAY QUE CONSEGUIR QUE SE INSERTEN LAS COLUMNAS EN SU FICHERO
+    			// DESDE QUE CONSIGO CREAR UN FICHERO HASTA QUE CREO OTRO, SE MEZCLAN NODOS EN EL FICHERO NUEVO, ¿CÓMO EVITAR ESTO?  ¿GUARDAR LOS NODOS EN UNA VARIABLE TEMPORAL?
+    			
+    			if(num == 0 ) {   				
+					fichero = "id" + getEtiqueta() + "\n" + identificador + getEntrada() + "\n";
 					//cols = "id, " + getEtiqueta() + "\n";
-					crearFichero(fichero, name, ".txt");
+					crearFichero(fichero, name, ".csv");
 					System.out.println("SE INSERTA EN EL FICHERO: " + name + "\n" + cols + " los datos:\n " + fichero + "********************************************************************************************************************");
 					//Node n = m.getParentNode();	
     			} else {
-    				fichero = identificador + ", " +getEntrada() + "\n" ;
-    				crearFichero(fichero, name, ".txt");
+    				fichero = identificador + getEntrada() + "\n" ;
+    				crearFichero(fichero, name, ".csv");
     			}
     			entrada= "";
 				etiqueta = "";
@@ -240,7 +192,6 @@ public class ExtractorXml {
  
     	return getAtributos();
     }     	
-    
     
     public String textoXmlSinHijos (Node nodo) {
     	
@@ -257,11 +208,9 @@ public class ExtractorXml {
     			textoXmlSinHijos(m);	
     		} else if (!m.getTextContent().isBlank()){
 				System.out.println("   " + m.getTextContent());
-    			setAtributos(m.getTextContent());
-    			
+    			setAtributos(m.getTextContent());	
     		}
 	
-    	   //	System.out.println("EL TEXTO ES:" + m.getTextContent());
     		m = m.getNextSibling();
     	}
     	
@@ -340,13 +289,6 @@ public class ExtractorXml {
     	return texto;
     }
     
-    public String tratarDatos (String texto) {  	
-    	texto = texto.replace("\n", ",");
-    	texto = texto.replace("       ", ",");
-    	texto = texto.replace("null,,", "");
-    	texto = texto.replace(",,", ","); 
-    	return texto;
-    }
     
     public void setEntrada(String ent) {
     	this.entrada = entrada + ", " + ent;
@@ -371,6 +313,14 @@ public class ExtractorXml {
     
     public String getNombre() {
     	return name;
+    }
+    
+    public void setNameAnterior(String nameAnterior) {
+    	this.nameAnterior = nameAnterior;
+    }
+    
+    public String getNameAnterior() {
+    	return nameAnterior;
     }
     
     public boolean contiene(String texto) {
