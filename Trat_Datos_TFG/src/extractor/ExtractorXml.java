@@ -28,6 +28,7 @@ public class ExtractorXml {
 	String f = "";
 	String f_p = "";
 	String f_d = "";
+	int contad;
 
     public void abrirDoc(String fichero) {
 
@@ -98,6 +99,10 @@ public class ExtractorXml {
     				setEtiqueta(replaceString(m.getNodeName()));
     			} 
     			
+    			//System.out.println("se llama a la función con: " + m.getNodeName());
+    			//System.out.println("EL PADRE DEL NODO QUE ESTOY LEYENDO ES: " + devolverPadre(m, nm, contador));
+    			
+    			
     			if(contiene(replaceString(m.getNodeName())) == true) { //
     				if (m.getParentNode().getNodeName() != "entry" && m.getParentNode().getNodeName() != "feed") {  
     					System.out.println("==" + replaceString(m.getNodeName()));
@@ -138,8 +143,7 @@ public class ExtractorXml {
     		} else if (!m.getTextContent().isBlank()){
     			System.out.println("   " + m.getTextContent());
     			setDatos(m.getTextContent());
-    			setEntrada(m.getTextContent());
-    			
+    			setEntrada(m.getTextContent());   
     		}
     		
     		if(name!= null && !name.isBlank()) {    			
@@ -149,38 +153,41 @@ public class ExtractorXml {
 					System.out.println("SE INSERTA EN EL FICHERO: " + name + "\n los datos:\n " + fichero + "********************************************************************************************************************");
 					f_p = f_p + getEtiqueta();
 					f_d = f_d + getEntrada();
-					crearFichero(f_p + "\n"+ f_d, name, ".txt");
-					//f_p = "";
-	        		//f_d = "";
+					crearFichero("id" + f_p + "\n"+ identificador + f_d, name, ".txt");
+					f_p = "";
+	        		f_d = "";
 	         		entrada = "";
 	        		etiqueta = "";
 	        		//name = "";
-    			} else if(nodoPadre != null) { 
-    				System.out.println("name = " + name + " nodoPadre = " + nm.getNodeName());
-    				if (num == 0 && name.equals(replaceString(nodoPadre.getNodeName()))) {
+    			} else if(nm != null && m.getNodeType() == Node.ELEMENT_NODE) { 
+    				System.out.println("name = " + name + " nodoPadre = " + replaceString(nm.getNodeName()));
+    				System.out.println("Bucle para hacer llamada a devolverPadre");
+    				System.out.println("m = " + m.getNodeName() + " nm = " + nm.getNodeName());
+    				if (num == 0 && name.equals(devolverPadre(m, nm, contador))) {
     					System.out.println();
     					f_p = f_p + getEtiqueta();
     					f_d = f_d + getEntrada();
     					crearFichero("id" + f_p + "\n" + identificador + f_d + "\n", name, ".txt");
-    					//f_p = "";
-    	        		//f_d = "";
+    					f_p = "";
+    	        		f_d = "";
     	         		entrada = "";
     	        		etiqueta = "";	  
     	        		//name = "";
-    				} else if(num > 0 && name.equals(replaceString(nodoPadre.getNodeName()))) { 		
+    				} else if(num > 0 && name.equals(devolverPadre(m, nm, contador))) { 		
     					f_d = f_d + getEntrada();
     					crearFichero(identificador + f_d + "\n", name, ".txt");
-    					//f_d = "";
+    					f_d = "";
     	        		entrada = "";
     	        		etiqueta = "";	
-	    			}
+	    			}//Aquí es donde quiero que se compruebe si el nombre del padre total es igual a name
+    				
     				
     				/*if (!name.equals(replaceString(nodoPadre.getNodeName()))) {
     					f_p = "";
     					f_d = "";
     				}*/
     			   	
-    			} else {
+    			/*} else {
     				fichero = identificador + getEntrada() + "\n" ;
     				f_p = f_p + getEtiqueta();
 					f_d = f_d + getEntrada();
@@ -188,7 +195,7 @@ public class ExtractorXml {
 	        		f_p = "";
 	        		f_d = "";
 	        		entrada = "";
-	        		etiqueta = "";	  
+	        		etiqueta = "";	*/  
     			}
 
 			}
@@ -336,5 +343,29 @@ public class ExtractorXml {
     	}
     	
     	return dev;
+    }
+    
+    public String devolverPadre(Node n, Node p, int c) {
+    	Node np = null;
+    	if (n.getNodeType() == Node.ELEMENT_NODE ) {
+    		System.out.println("Primer bucle");
+	     if (!n.getParentNode().getNodeName().equals("entry") && !n.getParentNode().getNodeName().equals("feed")) { 
+	    	 System.out.println("Segundo bucle");
+			np = n.getParentNode();
+			int cont = 0;
+			
+			if(p!= null) {
+				System.out.println("Tercer bucle");
+				while(!np.getParentNode().getNodeName().equals("entry") && !replaceString(np.getNodeName()).equals(replaceString(p.getNodeName())) && c == cont){
+					System.out.println("While bucle");
+				    np = np.getParentNode();		
+				}
+		     }
+	     }	
+
+	    }
+    	System.out.println("el valor del padre que devuelvo es: " + np.getNodeName()); 
+	    String rt = replaceString(np.getNodeName());
+	    return rt;
     }
 }
