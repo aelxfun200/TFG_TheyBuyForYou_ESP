@@ -198,10 +198,6 @@ public class ExtractorXml {
     				System.out.println("name = " + name + " nodoPadre = " + replaceString(nm.getNodeName()));
     				System.out.println("Bucle para hacer llamada a devolverPadre");
     				System.out.println("m = " + m.getNodeName() + " nm = " + nm.getNodeName());
-    				
-    				if(!getNameAnterior().equals(name) && num == -1) {
-    					num = 1;
-    				}
     				 				
     				if (num == 0 && name.equals(devolverPadre(m, nm, contador))) {    					
     					f_p = f_p + getEtiqueta();
@@ -226,10 +222,17 @@ public class ExtractorXml {
     				if(!devolverPadre(m, nm, contador).equals(replaceString(nm.getNodeName()))) {
     					if(num == -1) {
     						crearFichero(f_p_1 + "\n" + f_d_1 + "\n", name + "_1", ".csv");
+    						System.out.println("Se inserta en el fichero: " + name  + "_1" + "***********************************************************\n " + f_p_1 + "\n" + f_d_1 + "\n *********************************************************");
     					}else {
     						crearFichero(fichero + "\n", name + "_1", ".csv");
+    						System.out.println("Se inserta en el fichero: " + name  + "_1" + "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n " + f_p + "\n" + f_d + "\n +++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
     					}
-        				System.out.println("Se inserta en el fichero: " + name + "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n " + f_p + "\n" + f_d + "\n +++++++++++++++++++++++++++++++++++++++++++++++++++++++++");      								
+        				
+        				if(!getNameAnterior().equals(name) && num == -1 && existeFichero(name) == true) { // SI PONGO NUM A 1 NO SE INSERTAN LOS NOMBRES DE LAS COLUMNAS, BIEN POR LOS FICHEROS QUE FALLAN, MAL POR EL FICHERO NUEVO. SI PONGO NUM A 0 SE INSERTE EL TÍTULO PERO FALLAN LOS FICHEROS PRECENDENTES
+        					num = 1;
+        					System.out.println("SE HA MODIFICADO EL VALOR DE NUM A 1");
+        				}
+    					
         				setAtributos(name);
     				} 			
 				}   			
