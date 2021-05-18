@@ -1,12 +1,17 @@
-package extractor;
+package tfg.fi.upm.es;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Properties;
 
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
@@ -36,6 +41,7 @@ public class ExtractorXml {
 	String temporal = "";
 	int contad;
 	Document doc = null;
+    String ruta = "";
 
     public void abrirDoc(String fichero) {
 
@@ -85,7 +91,7 @@ public class ExtractorXml {
 							}
 							f = f.replace("null, ", "");
 							f = f.replace("\n, ", "");
-							addFichero(f, nodoResponsable.getNodeName() + "_1", ".csv"); 
+							addFichero(ruta, f, nodoResponsable.getNodeName() + "_1", ".csv"); 
 							f = "null";
 							cols = "null";
 						}
@@ -104,9 +110,9 @@ public class ExtractorXml {
 						
 		    			System.out.println("los ficheros son: " + tt.toString());
 		    			for (int i = 1; i< tt.size(); i++) {
-		    				String leer = leerFichero(tt.get(i).toString().substring(1) + "_1", ".csv");
-		    				addFichero(leer, tt.get(i).toString().substring(1), ".csv");
-		    				borrarFichero(tt.get(i).toString().substring(1) + "_1", ".csv");
+		    				String leer = leerFichero(ruta, tt.get(i).toString().substring(1) + "_1", ".csv");
+		    				addFichero(ruta, leer, tt.get(i).toString().substring(1), ".csv");
+		    				borrarFichero(ruta, tt.get(i).toString().substring(1) + "_1", ".csv");
 		    			}
 	
 	    			}
@@ -179,14 +185,14 @@ public class ExtractorXml {
 	        		}
     				
 	        		if (num == -1) {
-	        			crearFichero("", name + "_1", ".csv");
+	        			crearFichero(ruta, "", name + "_1", ".csv");
 						f_p_1 = "id" + getEtiqueta();
 						f_d_1 = identificador + getEntrada();
 		        		//fichero ="id" + getEtiqueta() + "\n" + identificador + getEntrada();
 		        		entrada = ""; 
 		        		etiqueta = "";
 	        		} else {
-						crearFichero("", name + "_1", ".csv");
+						crearFichero(ruta, "", name + "_1", ".csv");
 						f_p = "id" + getEtiqueta();
 						f_d = identificador + getEntrada();
 		        		fichero ="id" + getEtiqueta() + "\n" + identificador + getEntrada();
@@ -221,14 +227,14 @@ public class ExtractorXml {
     				
     				if(!devolverPadre(m, nm, contador).equals(replaceString(nm.getNodeName()))) {
     					if(num == -1) {
-    						crearFichero(f_p_1 + "\n" + f_d_1 + "\n", name + "_1", ".csv");
+    						crearFichero(ruta, f_p_1 + "\n" + f_d_1 + "\n", name + "_1", ".csv");
     						System.out.println("Se inserta en el fichero: " + name  + "_1" + "***********************************************************\n " + f_p_1 + "\n" + f_d_1 + "\n *********************************************************");
     					}else {
-    						crearFichero(fichero + "\n", name + "_1", ".csv");
+    						crearFichero(ruta, fichero + "\n", name + "_1", ".csv");
     						System.out.println("Se inserta en el fichero: " + name  + "_1" + "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n " + f_p + "\n" + f_d + "\n +++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
     					}
         				
-        				if(!getNameAnterior().equals(name) && num == -1 && existeFichero(name) == true) { // SI PONGO NUM A 1 NO SE INSERTAN LOS NOMBRES DE LAS COLUMNAS, BIEN POR LOS FICHEROS QUE FALLAN, MAL POR EL FICHERO NUEVO. SI PONGO NUM A 0 SE INSERTE EL TÍTULO PERO FALLAN LOS FICHEROS PRECENDENTES
+        				if(!getNameAnterior().equals(name) && num == -1 && existeFichero(name) == true) { // SI PONGO NUM A 1 NO SE INSERTAN LOS NOMBRES DE LAS COLUMNAS, BIEN POR LOS FICHEROS QUE FALLAN, MAL POR EL FICHERO NUEVO. SI PONGO NUM A 0 SE INSERTE EL TITULO PERO FALLAN LOS FICHEROS PRECENDENTES
         					num = 1;
         					System.out.println("SE HA MODIFICADO EL VALOR DE NUM A 1");
         				}
@@ -268,11 +274,11 @@ public class ExtractorXml {
     }
     
     
-    public String crearFichero(String texto, String nombre, String extension) {
+    public String crearFichero(String path, String texto, String nombre, String extension) {
     	String dev = texto;
     	
     	try {
-    		String ruta_fichero = "C:/Users/alexf/Documents/Grado en INGENIERÍA INFORMÁTICA/TFG/"+ nombre + extension;
+    		String ruta_fichero = path + nombre + extension;
     		File fichero = new File(ruta_fichero);
     		FileWriter escribir = new FileWriter(fichero, false);
     		BufferedWriter bw = new BufferedWriter(escribir);
@@ -292,10 +298,10 @@ public class ExtractorXml {
     	
     }
     
-    public void addFichero(String texto, String nombre, String extension) {
+    public void addFichero(String path, String texto, String nombre, String extension) {
     	
     	try {
-    		String ruta_fichero = "C:/Users/alexf/Documents/Grado en INGENIERÍA INFORMÁTICA/TFG/"+ nombre + extension;
+    		String ruta_fichero = path + nombre + extension;
     		File fichero = new File(ruta_fichero);
     		FileWriter escribir = new FileWriter(fichero, true);
     		BufferedWriter bw = new BufferedWriter(escribir);
@@ -315,10 +321,10 @@ public class ExtractorXml {
     	
     }
     
-    public String leerFichero(String nombre, String extension) {
+    public String leerFichero(String path, String nombre, String extension) {
     	String d = "";
     	try {
-    		String ruta_fichero = "C:/Users/alexf/Documents/Grado en INGENIERÍA INFORMÁTICA/TFG/"+ nombre + extension;
+    		String ruta_fichero = path + nombre + extension;
     		File fichero = new File(ruta_fichero);
     		
     		FileReader fr = new FileReader(fichero);
@@ -340,10 +346,10 @@ public class ExtractorXml {
     	
     }
     
-    public void borrarFichero(String nombre, String extension) {
+    public void borrarFichero(String path, String nombre, String extension) {
     	if(existeFichero(nombre) == true) {
 	    	try {
-	    		String ruta_fichero = "C:/Users/alexf/Documents/Grado en INGENIERÍA INFORMÁTICA/TFG/"+ nombre + extension;
+	    		String ruta_fichero = path + nombre + extension;
 	    		File fichero = new File(ruta_fichero);
 	    		fichero.delete();
 	
@@ -357,7 +363,7 @@ public class ExtractorXml {
     
     public boolean existeFichero(String texto) {
     	boolean dev = false;
-    	String ruta_fichero = "C:/Users/alexf/Documents/Grado en INGENIERÍA INFORMÁTICA/TFG/"+ texto + ".csv";
+    	String ruta_fichero = ruta + texto + ".csv";
 		File fichero = new File(ruta_fichero);
 		if(fichero.exists()) {
 			dev = true;
@@ -466,4 +472,32 @@ public class ExtractorXml {
 	    System.out.println("+Se devuelve el padre:" + rt);
 	    return rt;
     }
+    
+    public void guardarComo(){
+
+        JFileChooser ruta_de_creacion = new JFileChooser();
+        ruta_de_creacion.setDialogTitle("Seleccionar ruta para guardar ficheros generados");
+        ruta_de_creacion.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        ruta_de_creacion.showSaveDialog(null);
+        ruta_de_creacion.setAcceptAllFileFilterUsed(false);
+        //if(ruta_de_creación.get) definir que si la seleccion del fichero se cancela, la ruta se queda como vacía
+        ruta = ruta_de_creacion.getSelectedFile().getAbsolutePath() + "\\";
+        System.out.println(ruta);
+    }
+    
+    
+	Properties config = new Properties();
+    InputStream configInput = null;
+    
+    public void loadConfig(){
+        try{
+            configInput = new FileInputStream("config.properties");
+            config.load(configInput);
+            System.out.println(config.getProperty("field_path"));
+            System.out.println(config.getProperty("folder_path"));
+        } catch(Exception e){
+            JOptionPane.showMessageDialog(null, "Error cargando configuración\n" + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
 }
