@@ -6,12 +6,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.InputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Properties;
 
-import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
@@ -41,7 +39,8 @@ public class ExtractorXml {
 	String temporal = "";
 	int contad;
 	Document doc = null;
-    String ruta = "";
+	String folder_path = "";
+	int progreso;
 
     public void abrirDoc(String fichero) {
 
@@ -51,13 +50,18 @@ public class ExtractorXml {
     		doc = dBuilder.parse(fichero);
     		doc.getDocumentElement().normalize();	
     		nList = doc.getElementsByTagName("entry");
-    		
+  		     String anim= "|/-\\"; 
     		for(int j = 0; j < nList.getLength(); j++) {
+    			int w =( j * 100) / nList.getLength();
+   		      String data = "\r Total contracts: " + nList.getLength() + anim.charAt(j % anim.length()) + " Already processed: " + j + " ------ " + w  + "%"; 
+   		      System.out.write(data.getBytes()); 
+   		      //Thread.sleep(100); 
+    			
     			Node nodoResponsable = nList.item(j);
     			num = j;
     			setAtributos(nodoResponsable.getNodeName());
     			name = "";
-    			
+    			    			
 	    		if(nodoResponsable.getNodeType() == Node.ELEMENT_NODE) {	    			
 	    			
 						Node hijos = nodoResponsable.getFirstChild().getNextSibling();
@@ -66,13 +70,13 @@ public class ExtractorXml {
 							while(hijos.getNextSibling() != null) {
 								int cont = 0;
 								if(hijos.getNodeType() == Node.ELEMENT_NODE) {
-									System.out.println( "+ " + hijos.getNodeName());
+									//System.out.println( "+ " + hijos.getNodeName());
 									setEtiqueta(replaceString(hijos.getNodeName()));
 									if(hijos.getNodeName() == "id") {
 										f_p = "";
 										f_d = "";
 										identificador = hijos.getTextContent().substring(75,81);
-										System.out.println(identificador);
+										//System.out.println(identificador);
 										
 									}
 								}
@@ -91,13 +95,13 @@ public class ExtractorXml {
 							}
 							f = f.replace("null, ", "");
 							f = f.replace("\n, ", "");
-							addFichero(ruta, f, nodoResponsable.getNodeName() + "_1", ".csv"); 
+							addFichero(folder_path, f, nodoResponsable.getNodeName() + "_1", ".csv"); 
 							f = "null";
 							cols = "null";
 						}
 						
 		    			nodoResponsable = nodoResponsable.getNextSibling();
-		    			
+	
 		    			String[] atributo = getAtributos().split(",");
 		    			ArrayList<String> tt = new ArrayList<String>();
 		    			
@@ -108,15 +112,17 @@ public class ExtractorXml {
 							}
 						}	
 						
-		    			System.out.println("los ficheros son: " + tt.toString());
+		    			//System.out.println("los ficheros son: " + tt.toString());
 		    			for (int i = 1; i< tt.size(); i++) {
-		    				String leer = leerFichero(ruta, tt.get(i).toString().substring(1) + "_1", ".csv");
-		    				addFichero(ruta, leer, tt.get(i).toString().substring(1), ".csv");
-		    				borrarFichero(ruta, tt.get(i).toString().substring(1) + "_1", ".csv");
+		    				String leer = leerFichero(folder_path, tt.get(i).toString().substring(1) + "_1", ".csv");
+		    				addFichero(folder_path, leer, tt.get(i).toString().substring(1), ".csv");
+		    				borrarFichero(folder_path, tt.get(i).toString().substring(1) + "_1", ".csv");
 		    			}
 	
 	    			}
     		}
+    		
+    		System.out.println("\r All contracts have been processed.                          \n");
 	
     	} catch (Exception e) {
 			// TODO: handle exception
@@ -133,11 +139,11 @@ public class ExtractorXml {
     	while(m != null) {
 
     		if (m.getNodeType() == Node.ELEMENT_NODE ) {
-    			System.out.println("- " + replaceString(m.getNodeName()));
+    			//System.out.println("- " + replaceString(m.getNodeName()));
     				setEtiqueta(replaceString(m.getNodeName()));
  
     			if(contiene(replaceString(m.getNodeName())) == true) { 
-					System.out.println("==" + replaceString(m.getNodeName()));
+					//System.out.println("==" + replaceString(m.getNodeName()));
 					
 					nodoPadre = m.getParentNode();
 					int cont = 0;
@@ -146,33 +152,33 @@ public class ExtractorXml {
 							nodoPadre = nodoPadre.getParentNode();
 						}
 						
-						System.out.println("El primer contador es: " + contador);
+						//System.out.println("El primer contador es: " + contador);
 						contador ++;
-						System.out.println("el valor del padre es: " + nodoPadre.getNodeName());
-						System.out.println("el valor del hijo es: " + m.getNodeName());
+						//System.out.println("el valor del padre es: " + nodoPadre.getNodeName());
+						//System.out.println("el valor del hijo es: " + m.getNodeName());
 						nm = nodoPadre;
 					}while(nodoPadre.getParentNode() != null && !nodoPadre.getNodeName().equals("entry") && contador == cont); {
 						
 					}
-					System.out.println(nodoPadre.getNodeName() + "/////////////////////////////////////////////////////////////////");
+					//System.out.println(nodoPadre.getNodeName() + "/////////////////////////////////////////////////////////////////");
 					if(!nodoPadre.getParentNode().getNodeName().equals("feed")) { 
 						setNameAnterior(name);
-						System.out.println(getNameAnterior() + ".....................");
+						//System.out.println(getNameAnterior() + ".....................");
 						name = replaceString(nodoPadre.getNodeName());
 						
 					} else {
 						setNameAnterior(name);
-						System.out.println(getNameAnterior() + ".....................");
+						//System.out.println(getNameAnterior() + ".....................");
     					name ="ContractFolderStatus";		
 					} 		
     			}
     		}
     		
     		if(m.getFirstChild() != null) {	
-    			System.out.println("Se invoca a la función textoXml con el valor del contador: " + contador);
+    			//System.out.println("Se invoca a la función textoXml con el valor del contador: " + contador);
     			textoXml(m, contador);	
     		} else if (!m.getTextContent().isBlank()){
-    			System.out.println("   " + m.getTextContent());
+    			//System.out.println("   " + m.getTextContent());
     			setDatos(m.getTextContent());
     			setEntrada(m.getTextContent());   
     		}
@@ -185,14 +191,14 @@ public class ExtractorXml {
 	        		}
     				
 	        		if (num == -1) {
-	        			crearFichero(ruta, "", name + "_1", ".csv");
+	        			crearFichero(folder_path, "", name + "_1", ".csv");
 						f_p_1 = "id" + getEtiqueta();
 						f_d_1 = identificador + getEntrada();
 		        		//fichero ="id" + getEtiqueta() + "\n" + identificador + getEntrada();
 		        		entrada = ""; 
 		        		etiqueta = "";
 	        		} else {
-						crearFichero(ruta, "", name + "_1", ".csv");
+						crearFichero(folder_path, "", name + "_1", ".csv");
 						f_p = "id" + getEtiqueta();
 						f_d = identificador + getEntrada();
 		        		fichero ="id" + getEtiqueta() + "\n" + identificador + getEntrada();
@@ -201,9 +207,9 @@ public class ExtractorXml {
 	        		}
 	        		
     			}else if(nm != null && m.getNodeType() == Node.ELEMENT_NODE) { 
-    				System.out.println("name = " + name + " nodoPadre = " + replaceString(nm.getNodeName()));
-    				System.out.println("Bucle para hacer llamada a devolverPadre");
-    				System.out.println("m = " + m.getNodeName() + " nm = " + nm.getNodeName());
+    				//System.out.println("name = " + name + " nodoPadre = " + replaceString(nm.getNodeName()));
+    				//System.out.println("Bucle para hacer llamada a devolverPadre");
+    				//System.out.println("m = " + m.getNodeName() + " nm = " + nm.getNodeName());
     				 				
     				if (num == 0 && name.equals(devolverPadre(m, nm, contador))) {    					
     					f_p = f_p + getEtiqueta();
@@ -227,16 +233,16 @@ public class ExtractorXml {
     				
     				if(!devolverPadre(m, nm, contador).equals(replaceString(nm.getNodeName()))) {
     					if(num == -1) {
-    						crearFichero(ruta, f_p_1 + "\n" + f_d_1 + "\n", name + "_1", ".csv");
-    						System.out.println("Se inserta en el fichero: " + name  + "_1" + "***********************************************************\n " + f_p_1 + "\n" + f_d_1 + "\n *********************************************************");
+    						crearFichero(folder_path, f_p_1 + "\n" + f_d_1 + "\n", name + "_1", ".csv");
+    						//System.out.println("Se inserta en el fichero: " + name  + "_1" + "***********************************************************\n " + f_p_1 + "\n" + f_d_1 + "\n *********************************************************");
     					}else {
-    						crearFichero(ruta, fichero + "\n", name + "_1", ".csv");
-    						System.out.println("Se inserta en el fichero: " + name  + "_1" + "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n " + f_p + "\n" + f_d + "\n +++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+    						crearFichero(folder_path, fichero + "\n", name + "_1", ".csv");
+    						//System.out.println("Se inserta en el fichero: " + name  + "_1" + "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n " + f_p + "\n" + f_d + "\n +++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
     					}
         				
         				if(!getNameAnterior().equals(name) && num == -1 && existeFichero(name) == true) { // SI PONGO NUM A 1 NO SE INSERTAN LOS NOMBRES DE LAS COLUMNAS, BIEN POR LOS FICHEROS QUE FALLAN, MAL POR EL FICHERO NUEVO. SI PONGO NUM A 0 SE INSERTE EL TITULO PERO FALLAN LOS FICHEROS PRECENDENTES
         					num = 1;
-        					System.out.println("SE HA MODIFICADO EL VALOR DE NUM A 1");
+        					//System.out.println("SE HA MODIFICADO EL VALOR DE NUM A 1");
         				}
     					
         				setAtributos(name);
@@ -256,14 +262,14 @@ public class ExtractorXml {
 
     	while(m != null) {
     		if (m.getNodeType() == Node.ELEMENT_NODE) {
-    			System.out.println("- " + replaceString(m.getNodeName()));
+    			//System.out.println("- " + replaceString(m.getNodeName()));
     			setEtiqueta(replaceString(m.getNodeName()));			
     		}
 
     		if(m.getFirstChild() != null) {	
     			textoXmlSinHijos(m);	
     		} else if (!m.getTextContent().isBlank()){
-				System.out.println("   " + m.getTextContent());	
+				//System.out.println("   " + m.getTextContent());	
     		}
 	
     		m = m.getNextSibling();
@@ -332,7 +338,7 @@ public class ExtractorXml {
     		String ln;  
     		while((ln= br.readLine()) != null) {
 	    		 d =  d + ln + "\n";
-	    		System.out.println("se lee del fichero: " + ln);
+	    		//System.out.println("se lee del fichero: " + ln);
     		}
     		
     		br.close();
@@ -340,7 +346,7 @@ public class ExtractorXml {
     		
     	} catch (Exception e) {
 			// TODO: handle exception
-    		e.printStackTrace();
+    		//e.printStackTrace();
 		}
     	return d;
     	
@@ -363,7 +369,7 @@ public class ExtractorXml {
     
     public boolean existeFichero(String texto) {
     	boolean dev = false;
-    	String ruta_fichero = ruta + texto + ".csv";
+    	String ruta_fichero = folder_path + texto + ".csv";
 		File fichero = new File(ruta_fichero);
 		if(fichero.exists()) {
 			dev = true;
@@ -469,35 +475,21 @@ public class ExtractorXml {
 
 	    }
 	    String rt = replaceString(np.getNodeName());
-	    System.out.println("+Se devuelve el padre:" + rt);
+	    //System.out.println("+Se devuelve el padre:" + rt);
 	    return rt;
     }
     
-    public void guardarComo(){
-
-        JFileChooser ruta_de_creacion = new JFileChooser();
-        ruta_de_creacion.setDialogTitle("Seleccionar ruta para guardar ficheros generados");
-        ruta_de_creacion.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        ruta_de_creacion.showSaveDialog(null);
-        ruta_de_creacion.setAcceptAllFileFilterUsed(false);
-        //if(ruta_de_creación.get) definir que si la seleccion del fichero se cancela, la ruta se queda como vacía
-        ruta = ruta_de_creacion.getSelectedFile().getAbsolutePath() + "\\";
-        System.out.println(ruta);
-    }
     
     
-	Properties config = new Properties();
-    InputStream configInput = null;
-    
-    public void loadConfig(){
-        try{
-            configInput = new FileInputStream("config.properties");
-            config.load(configInput);
-            System.out.println(config.getProperty("field_path"));
-            System.out.println(config.getProperty("folder_path"));
-        } catch(Exception e){
-            JOptionPane.showMessageDialog(null, "Error cargando configuración\n" + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
+	public void getRutaCarpeta() throws IOException
+    {
+        Properties archivoPropertie = new Properties();
+        FileInputStream archivo;
+        String ruta = "./config.properties"; //Se debe guardar en la misma ruta del JAR
+        archivo = new FileInputStream(ruta);
+        archivoPropertie.load(archivo);
+        archivo.close();
+        folder_path = archivoPropertie.getProperty("folder_path");
     }
     
 }
